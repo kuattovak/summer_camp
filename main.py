@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from typing import Optional
 from pydantic import BaseModel
 from posts.router import router
+from database import database
 
 # title
 # content
@@ -9,6 +10,14 @@ from posts.router import router
 # author
 
 app = FastAPI()
+
+@app.on_event('startup')
+async def startup():
+    await database.connect()
+    
+@app.on_event('shutdown')
+async def shutdown():
+    await database.disconnect()
 
 app.include_router(router, prefix = '/posts')
 
